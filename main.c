@@ -1,81 +1,80 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-enum { TODO, IN_PROGRESS, DONE };
+// Function to open a file with ".bin" extension
+/*
+FILE *open_file_with_extension(const char *filename) {
+  // Allocate a buffer for the filename with ".bin" extension
+  size_t len = strlen(filename) + 5;  // 4 for ".bin" + 1 for '\0'
+  char *full_filename = (char *)malloc(len);
+  if (full_filename == NULL) {
+    perror("Memory allocation failed");
+    exit(EXIT_FAILURE);
+  }
+  snprintf(full_filename, len, "%s.bin", filename);  // Format filename
+
+  // Open the file
+  FILE *file = fopen(full_filename, "wb+");
+  free(full_filename);  // Free the allocated buffer
+  return file;
+}
+*/
+
+// Enum for task status
+enum { TODO = 0, IN_PROGRESS = 1, DONE = 2 };
 
 int main(int argc, char *argv[]) {
-  if (argc > 1) {
-    if (!strcmp(argv[1], "list")) {
-      if (argc > 2) {
-        if (!strcmp(argv[2], "done")) {
-        } else if (!strcmp(argv[2], "in-progress")) {
-        } else if (!strcmp(argv[2], "todo")) {
-        }
-      } else {
-        FILE *fptr;
+  if (argc < 2) {
+    printf("no valid input\n");
+    return 1;
+  } else if (strcmp(argv[1], "list") == 0) {
+    if (argc > 2) {
+      if(strcmp(argv[2], "todo") == 0) {
+        
+      }else if (strcmp(argv[2], "in-progress") == 0) {
+        
+      }else if(strcmp(argv[2], "done") == 0) {
 
-      read_to_do_list:
-
-        fptr = fopen("to_do_list.txt", "r");
-
-        if (fptr == NULL) {
-          printf("No file detected %s\n", "Creating to_do_list.txt\n");
-
-          fptr = fopen("to_do_list.txt", "w");
-
-          goto read_to_do_list;
-
-        } else {
-          char file_buffer[1024];
-
-          while (fgets(file_buffer, sizeof(file_buffer), fptr)) {
-            printf("%s", file_buffer);
-          }
-        }
-
-        fclose(fptr);
+      }else{
+        printf("no valid input\n");
+        return 1;
       }
-    } else if (!strcmp(argv[1], "add")) {
-      FILE *fptr;
-
-      fptr = fopen("to_do_list.txt", "a");
-
-      if (fptr == NULL) {
-        printf("Error opening file!\n");
-
-      } else {
-        char *line = argv[2];
-
-        fprintf(fptr, "%s %d\n", line, TODO);
-      }
-      fclose(fptr);
-
-    } else if (!strcmp(argv[1], "delete")) {
-      FILE *fptr;
-      fptr = fopen("to_do_list.txt", "r");
-      if (fptr == NULL) {
-        printf("Error opening file!\n");
-      } else {
-        char file_buffer[1024];
-        FILE *temp_fptr = fopen("temp.txt", "w");
-        while (fgets(file_buffer, sizeof(file_buffer), fptr)) {
-          file_buffer[strcspn(file_buffer, "\n")] = 0; // remove newline character
-          if (strcmp(file_buffer, argv[2] + '\n') ==! 0) {
-            fprintf(temp_fptr, "%s", file_buffer);
-          }
-        }
-        fclose(fptr);
-        fclose(temp_fptr);
-        remove("to_do_list.txt");
-        rename("temp.txt", "to_do_list.txt");
-      }
-
-    } else if (!strcmp(argv[1], "update")) {
-    } else if (!strcmp(argv[1], "mark-done")) {
-    } else if (!strcmp(argv[1], "mark-in-progress")) {
     } else {
-      printf("no valid input\n");
+      //list all tasks
+
     }
+  } else if (strcmp(argv[1], "add") == 0) {
+    if (argc < 3) {
+      printf("no filename provided\n");
+      return 1;
+    }
+    char bufr[256];
+    snprintf(bufr, sizeof(bufr), "%s.bin", argv[2]);
+    FILE *file = fopen(bufr, "wb+");
+    if (file == NULL) {
+      perror("failed to create file");
+      return 1;
+    }
+    int status = TODO;  // Use the integer value of TODO
+    fwrite(&status, sizeof(int), 1, file);
+    fclose(file);
+    printf("Task added with status TODO to %s.bin\n", argv[2]);
+  } else if (strcmp(argv[1], "delete") == 0) {
+    // Implementation for deleting tasks goes here
+    printf("Delete functionality not implemented yet.\n");
+  } else if (strcmp(argv[1], "update") == 0) {
+    // Implementation for updating tasks goes here
+    printf("Update functionality not implemented yet.\n");
+  } else if (strcmp(argv[1], "mark-done") == 0) {
+    // Implementation for marking tasks as done goes here
+    printf("Mark done functionality not implemented yet.\n");
+  } else if (strcmp(argv[1], "mark-in-progress") == 0) {
+    // Implementation for marking tasks as in progress goes here
+    printf("Mark in-progress functionality not implemented yet.\n");
+  } else {
+    printf("no valid input\n");
   }
+
   return 0;
 }
