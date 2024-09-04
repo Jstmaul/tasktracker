@@ -16,52 +16,39 @@ int main(int argc, char *argv[]) {
 static void check_dir_exists() {
   DIR *dp = opendir("task-data");
   if (dp == NULL) {
-    if (errno = ENOENT) {
+    if (errno != ENOENT) {
       closedir(dp);
-    } else if (errno != ENOENT) {
-      printf("making task-data directory\n");
+    } else if (errno = ENOENT) {
+      printf("task-data directory created\n");
+      closedir(dp);
       mkdir("task-data");
-      closedir(dp);
     }
   }
 }
 
-static void printdir(char *dir, int depth) {
-  struct dirent *entry;
-  struct _stat statbuf;
-  char path[100];
+static void handle_list(char *dir) {
   DIR *dp = opendir(dir);
 
   if (dp == NULL) {
     perror("opendir");
     return;
   }
-
+  struct dirent *entry;
+  int file_count = 0;
   while ((entry = readdir(dp)) != NULL) {
-    snprintf(path, 100, "%s/%s", dir, entry->d_name);
-    if (_stat(path, &statbuf) == -1) {
-      perror("stat");
+    if (strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0)
       continue;
-    }
-
-    if (S_ISDIR(statbuf.st_mode)) {
-      /* Found a directory, but ignore . and .. */
-      if (strcmp(".", entry->d_name) == 0 || strcmp("..", entry->d_name) == 0)
-        continue;
-      printf("%*s%s/\n", depth, "", entry->d_name);
-      /* Recurse at a new indent level */
-      printdir(path, depth + 4);
-    } else
-      printf("%*s%s\n", depth, "", entry->d_name);
+    printf("%s/\n", entry->d_name);
+    file_count++;
   }
-
+  if (file_count == 0) printf("No tasks found\n");
   closedir(dp);
 }
 
 static void add_task(const char *filename) {
   char bufr[256];
 
-  snprintf(bufr, sizeof(bufr), "task-data/%s.bin", filename);
+  snprintf(bufr, sizeof(bufr), "task-data/%s", filename);
   FILE *file = fopen(bufr, "wb+");
   if (file == NULL) {
     perror("failed to create file");
@@ -70,8 +57,14 @@ static void add_task(const char *filename) {
   int status = TODO;
   fwrite(&status, sizeof(int), 1, file);
   fclose(file);
-  printf("Task added with status TODO to %s.bin\n", filename);
+  printf("Task added with status TODO to %s\n", filename);
 }
+
+static void list_todo() {}
+
+static void list_in_progress() {}
+
+static void list_done() {}
 
 static void handle_arguments(int argc, char *argv[]) {
   if (argc < 2) {
@@ -83,11 +76,11 @@ static void handle_arguments(int argc, char *argv[]) {
       } else if (strcmp(argv[2], "in-progress") == 0) {
       } else if (strcmp(argv[2], "done") == 0) {
       } else {
-        printf("no valid input\n");
+        printf("invalid input\n");
         return;
       }
     } else {
-      printdir("task-data", 0);
+      printdir("task-data");
     }
   } else if (strcmp(argv[1], "add") == 0) {
     add_task(argv[2]);
@@ -104,6 +97,6 @@ static void handle_arguments(int argc, char *argv[]) {
   } else if (strcmp(argv[1], "mark-in-progress") == 0) {
     printf("Mark in-progress functionality not implemented yet.\n");
   } else {
-    printf("no valid input\n");
+    printf("invalid input\n");
   }
 }
