@@ -1,25 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-// Function to open a file with ".bin" extension
-/*
-FILE *open_file_with_extension(const char *filename) {
-  // Allocate a buffer for the filename with ".bin" extension
-  size_t len = strlen(filename) + 5;  // 4 for ".bin" + 1 for '\0'
-  char *full_filename = (char *)malloc(len);
-  if (full_filename == NULL) {
-    perror("Memory allocation failed");
-    exit(EXIT_FAILURE);
-  }
-  snprintf(full_filename, len, "%s.bin", filename);  // Format filename
-
-  // Open the file
-  FILE *file = fopen(full_filename, "wb+");
-  free(full_filename);  // Free the allocated buffer
-  return file;
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+void printdir(char *dir, int depth)
+{
+    DIR *dp;
+    struct dirent *entry;
+    struct stat statbuf;
+    if((dp = opendir(dir)) == NULL) {
+        fprintf(stderr,"cannot open directory: %s\n", dir);
+        return;
+    }
+    chdir(dir);
+    while((entry = readdir(dp)) != NULL) {
+        lstat(entry->d_name,&statbuf);
+        if(S_ISDIR(statbuf.st_mode)) {
+            /* Found a directory, but ignore . and .. */
+            if(strcmp(".",entry->d_name) == 0 ||
+                strcmp("..",entry->d_name) == 0)
+                continue;
+            printf("%*s%s/\n",depth,"",entry->d_name);
+            /* Recurse at a new indent level */
+            printdir(entry->d_name,depth+4);
+        }
+        else printf("%*s%s\n",depth,"",entry->d_name);
+    }
+    chdir("..");
+    closedir(dp);
 }
-*/
+
 
 // Enum for task status
 enum { TODO = 0, IN_PROGRESS = 1, DONE = 2 };
