@@ -8,6 +8,12 @@
 #include <unistd.h>
 
 int main(int argc, char *argv[]) {
+  check_dir_exists();
+  handle_arguments(argc, argv);
+  return 0;
+}
+
+static void check_dir_exists() {
   DIR *dp = opendir("task-data");
   if (dp == NULL) {
     if (errno = ENOENT) {
@@ -15,10 +21,9 @@ int main(int argc, char *argv[]) {
     } else if (errno != ENOENT) {
       printf("making task-data directory\n");
       mkdir("task-data");
+      closedir(dp);
     }
   }
-  handle_arguments(argc, argv);
-  return 0;
 }
 
 static void printdir(char *dir, int depth) {
