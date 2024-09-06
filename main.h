@@ -2,14 +2,14 @@
 #define MAIN_H
 
 // Enum for task status
-enum { TODO = 0, IN_PROGRESS = 1, DONE = 2 };
+enum task_status { TODO = 0, IN_PROGRESS = 1, DONE = 2 };
 
-static void handle_list(char *dir);
-static void add_task(const char *filename);
-static void check_dir_exists();
-static void list_todo();
-static void list_in_progress();
-static void list_done();
-static void handle_arguments(int argc, char *argv[]);
+
+static void handle_dir_check();
+static void handle_display_task_list() ;
+static void handle_add_task(const char *filename) ;
+static void handle_display_list_list_sp(int task_status);
+static void delete_task(char *filename) ;
+static void handle_arguments(int argc, char **argv);
 
 #endif  // MAIN_H
