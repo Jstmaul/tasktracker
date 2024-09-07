@@ -2,7 +2,7 @@
 #define MAIN_H
 
 // Enum for task status
-enum task_status { TODO = 0, IN_PROGRESS = 1, DONE = 2 };
+enum { TODO = 0, IN_PROGRESS = 1, DONE = 2 };
 
 
 static void handle_dir_check();
