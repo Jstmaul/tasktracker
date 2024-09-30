@@ -1,5 +1,3 @@
-#include "main.h"
-
 #include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
@@ -7,6 +5,16 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+// Enum for task status
+enum { TODO, IN_PROGRESS, DONE };
+
+static void handle_dir_check();
+static void handle_display_task_list();
+static void handle_add_task(const char *filename);
+static void handle_display_list_list_sp(int task_status);
+static void delete_task(char *filename);
+static void handle_arguments(int argc, char **argv);
 
 int main(int argc, char **argv) {
   handle_dir_check();
@@ -109,8 +117,10 @@ static void handle_display_task_list_sp(int task_status) {
     free(get_task_name[i]);
   }
 
-  if(task_with_status_found == 0)  printf("No tasks with this status found");
-  if (file_count == 0) printf("No tasks found\n");
+  if (task_with_status_found == 0)
+    printf("No tasks with this status found");
+  if (file_count == 0)
+    printf("No tasks found\n");
 
   closedir(dp);
 }
@@ -137,19 +147,19 @@ static void delete_task(char *filename) {
   }
 }
 
-static void handle_update_task_sp(int task_status, char* argv){
-  char bufr[10+FILENAME_MAX];
+static void handle_update_task_sp(int task_status, char *argv) {
+  char bufr[10 + FILENAME_MAX];
   snprintf(bufr, sizeof(bufr), "task-data/%s", argv);
   FILE *fp = fopen(bufr, "rb+");
 
-  if(fp == NULL){
+  if (fp == NULL) {
     printf("No task with %s name found", argv);
     return;
   }
 
   fwrite(&task_status, sizeof(int), 1, fp);
   fclose(fp);
-  printf("%s updated",argv);
+  printf("%s updated", argv);
 }
 
 static void handle_arguments(int argc, char **argv) {
@@ -180,25 +190,25 @@ static void handle_arguments(int argc, char **argv) {
   } else if (strcmp(argv[1], "delete") == 0) {
     delete_task(argv[2]);
   } else if (strcmp(argv[1], "mark") == 0) {
-    if (argc < 2){
+    if (argc < 2) {
       printf("Usage mark: \"taskname\" <todo/in-progress/done>");
       return;
     }
-    if (argc < 3){
+    if (argc < 3) {
       printf("please input command\n");
       printf("Usage mark: \"taskname\" <todo/in-progress/done>");
       return;
     }
 
-    if(strcmp(argv[3], "todo") == 0){
-      handle_update_task_sp(0,argv[2]);
-    } 
-    if(strcmp(argv[3], "in-progress") == 0){
-      handle_update_task_sp(1,argv[2]);
-    } 
-    if(strcmp(argv[3], "done") == 0){
-      handle_update_task_sp(3,argv[2]);
-    } 
+    if (strcmp(argv[3], "todo") == 0) {
+      handle_update_task_sp(0, argv[2]);
+    }
+    if (strcmp(argv[3], "in-progress") == 0) {
+      handle_update_task_sp(1, argv[2]);
+    }
+    if (strcmp(argv[3], "done") == 0) {
+      handle_update_task_sp(3, argv[2]);
+    }
   } else {
     printf("invalid input\n");
   }
